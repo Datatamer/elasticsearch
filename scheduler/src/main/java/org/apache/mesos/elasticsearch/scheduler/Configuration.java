@@ -66,6 +66,8 @@ public class Configuration {
     // **** External Volumes
     public static final String EXTERNAL_VOLUME_DRIVER = "--externalVolumeDriver";
     public static final String EXTERNAL_VOLUME_OPTIONS = "--externalVolumeOptions";
+    // **** Custom Tamr Config
+    public static final String MESOS_OFFER_IGNORE_PORTS = "--mesosOfferIgnorePorts";
 
     // **** ZOOKEEPER
     private final ZookeeperCLIParameter zookeeperCLI = new ZookeeperCLIParameter();
@@ -119,6 +121,11 @@ public class Configuration {
     private String externalVolumeDriver = "";
     @Parameter(names = {EXTERNAL_VOLUME_OPTIONS}, description = "External volume driver options.")
     private String externalVolumeOption = "";
+
+    // **** Custom Tamr Config
+    @Parameter(names = {MESOS_OFFER_IGNORE_PORTS}, arity = 1, description = "If true, the framework will ignore available  ports when considering an offer from mesos.")
+    private Boolean mesosOfferIgnorePorts = false;
+
 
     // ****************** Runtime configuration **********************
     public Configuration(String... args) {
@@ -206,6 +213,10 @@ public class Configuration {
 
     public Boolean getIsUseIpAddress() {
         return isUseIpAddress;
+    }
+
+    public Boolean getMesosOfferIgnorePorts() {
+        return mesosOfferIgnorePorts;
     }
 
     public String getElasticsearchBinary() {

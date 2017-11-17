@@ -78,4 +78,22 @@ public class ConfigurationTest {
         Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa", Configuration.FRAMEWORK_NAME, "test");
         assertEquals("test0data", configuration.dataVolumeName(0L));
     }
+
+    @Test
+    public void shouldSetIgnorePortsTrue() throws UnknownHostException {
+        Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa", Configuration.MESOS_OFFER_IGNORE_PORTS, "true");
+        assertTrue(configuration.getMesosOfferIgnorePorts());
+    }
+
+    @Test
+    public void shouldSetIgnorePortsFalse() throws UnknownHostException {
+        Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa", Configuration.MESOS_OFFER_IGNORE_PORTS, "false");
+        assertFalse(configuration.getMesosOfferIgnorePorts());
+    }
+
+    @Test
+    public void shouldSetIgnorePortsDefaultFalse() throws UnknownHostException {
+        Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa");
+        assertFalse(configuration.getMesosOfferIgnorePorts());
+    }
 }

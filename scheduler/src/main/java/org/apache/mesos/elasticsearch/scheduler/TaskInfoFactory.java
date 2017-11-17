@@ -159,8 +159,10 @@ public class TaskInfoFactory {
 
     private List<Protos.Resource> getResources(Configuration configuration, List<Integer> ports) {
         List<Protos.Resource> acceptedResources = Resources.buildFrameworkResources(configuration);
-        acceptedResources.add(Resources.singlePortRange(ports.get(0), configuration.getFrameworkRole()));
-        acceptedResources.add(Resources.singlePortRange(ports.get(1), configuration.getFrameworkRole()));
+        if (!configuration.getMesosOfferIgnorePorts()) {
+            acceptedResources.add(Resources.singlePortRange(ports.get(0), configuration.getFrameworkRole()));
+            acceptedResources.add(Resources.singlePortRange(ports.get(1), configuration.getFrameworkRole()));
+        }
         return acceptedResources;
     }
 
