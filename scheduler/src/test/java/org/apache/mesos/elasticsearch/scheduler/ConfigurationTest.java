@@ -17,6 +17,7 @@ import static org.junit.Assert.*;
 /**
  * Tests
  **/
+@SuppressWarnings("PMD.TooManyMethods")
 public class ConfigurationTest {
     @Test
     public void shouldReturnValidServerPath() throws UnknownHostException {
@@ -96,4 +97,43 @@ public class ConfigurationTest {
         Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa");
         assertFalse(configuration.getMesosOfferIgnorePorts());
     }
+
+    @Test
+    public void shouldSetMesosDockerNetworkHost() throws UnknownHostException {
+        Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa", Configuration.MESOS_TASK_DOCKER_NETWORK, "host");
+        assertEquals(configuration.getTaskDockerNetworkProtos(), Protos.ContainerInfo.DockerInfo.Network.HOST);
+    }
+
+    @Test
+    public void shouldSetMesosDockerNetworkBridge() throws UnknownHostException {
+        Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa", Configuration.MESOS_TASK_DOCKER_NETWORK, "BRIDGE");
+        assertEquals(configuration.getTaskDockerNetworkProtos(), Protos.ContainerInfo.DockerInfo.Network.BRIDGE);
+    }
+
+    @Test
+    public void shouldSetMesosDockerNetworkUser() throws UnknownHostException {
+        Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa", Configuration.MESOS_TASK_DOCKER_NETWORK, "USER");
+        assertEquals(configuration.getTaskDockerNetworkProtos(), Protos.ContainerInfo.DockerInfo.Network.USER);
+    }
+    @Test
+    public void shouldSetMesosDockerNetworkNone() throws UnknownHostException {
+        Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa", Configuration.MESOS_TASK_DOCKER_NETWORK, "NONE");
+        assertEquals(configuration.getTaskDockerNetworkProtos(), Protos.ContainerInfo.DockerInfo.Network.NONE);
+    }
+
+    @Test
+    public void shouldSetMesosDockerNetworkDefault() throws UnknownHostException {
+        Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa");
+        assertEquals(configuration.getTaskDockerNetworkProtos(), Protos.ContainerInfo.DockerInfo.Network.HOST);
+
+        configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa", Configuration.MESOS_TASK_DOCKER_NETWORK, "notreal");
+        assertEquals(configuration.getTaskDockerNetworkProtos(), Protos.ContainerInfo.DockerInfo.Network.HOST);
+    }
+
+    @Test
+    public void shouldSetMesosDockerNetworkBadInput() throws UnknownHostException {
+        Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa", Configuration.MESOS_TASK_DOCKER_NETWORK, "notreal");
+        assertEquals(configuration.getTaskDockerNetworkProtos(), Protos.ContainerInfo.DockerInfo.Network.HOST);
+    }
+
 }

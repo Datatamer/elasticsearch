@@ -183,7 +183,7 @@ public class TaskInfoFactory {
                 .addParameters(Protos.Parameter.newBuilder().setKey("env").setValue("MESOS_TASK_ID=" + taskID.getValue()))
                 .setImage(configuration.getExecutorImage())
                 .setForcePullImage(configuration.getExecutorForcePullImage())
-                .setNetwork(Protos.ContainerInfo.DockerInfo.Network.HOST);
+                .setNetwork(configuration.getTaskDockerNetworkProtos());
         // Add all env vars to container
         for (Protos.Environment.Variable variable : environment.getVariablesList()) {
             dockerInfo.addParameters(Protos.Parameter.newBuilder().setKey("env").setValue(variable.getName() + "=" + variable.getValue()));

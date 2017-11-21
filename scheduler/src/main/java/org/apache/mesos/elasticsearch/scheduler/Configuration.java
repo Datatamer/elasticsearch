@@ -68,6 +68,7 @@ public class Configuration {
     public static final String EXTERNAL_VOLUME_OPTIONS = "--externalVolumeOptions";
     // **** Custom Tamr Config
     public static final String MESOS_OFFER_IGNORE_PORTS = "--mesosOfferIgnorePorts";
+    public static final String MESOS_TASK_DOCKER_NETWORK = "--mesosTaskDockerNetwork";
 
     // **** ZOOKEEPER
     private final ZookeeperCLIParameter zookeeperCLI = new ZookeeperCLIParameter();
@@ -125,6 +126,8 @@ public class Configuration {
     // **** Custom Tamr Config
     @Parameter(names = {MESOS_OFFER_IGNORE_PORTS}, arity = 1, description = "If true, the framework will ignore available  ports when considering an offer from mesos.")
     private Boolean mesosOfferIgnorePorts = false;
+    @Parameter(names = {MESOS_TASK_DOCKER_NETWORK}, arity = 1, description = "Set the docker network type for the ES executor docker container. Types are 'HOST', 'BRIDGE', 'USER', and 'NONE'. Default is 'HOST'" )
+    private String mesosTaskDockerNetwork = "host";
 
 
     // ****************** Runtime configuration **********************
@@ -371,5 +374,20 @@ public class Configuration {
 
     public String dataVolumeName(Long nodeId) {
         return getFrameworkName() + nodeId + "data";
+    }
+
+    public Protos.ContainerInfo.DockerInfo.Network getTaskDockerNetworkProtos() {
+        switch (mesosTaskDockerNetwork.toLowerCase()) {
+            case "host":
+                return Protos.ContainerInfo.DockerInfo.Network.HOST;
+            case "bridge":
+                return Protos.ContainerInfo.DockerInfo.Network.BRIDGE;
+            case "user":
+                return Protos.ContainerInfo.DockerInfo.Network.USER;
+            case "none":
+                return Protos.ContainerInfo.DockerInfo.Network.NONE;
+            default:
+                return Protos.ContainerInfo.DockerInfo.Network.HOST;
+        }
     }
 }
