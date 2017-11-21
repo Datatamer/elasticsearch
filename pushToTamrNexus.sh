@@ -30,7 +30,7 @@ if [ $maven_version -lt 30309 ]; then
 fi
 
 basedir=$(cd $(dirname $0) && pwd)
-version=0.7
+version=0.8
 $basedir/gradlew build :scheduler:copyJar -x test
 pushjar $basedir/scheduler/build/docker/mesos-elasticsearch-scheduler.jar \
         org.apache.mesos \
