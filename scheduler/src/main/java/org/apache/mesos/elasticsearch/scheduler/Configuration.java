@@ -69,6 +69,7 @@ public class Configuration {
     // **** Custom Tamr Config
     public static final String MESOS_OFFER_IGNORE_PORTS = "--mesosOfferIgnorePorts";
     public static final String MESOS_TASK_DOCKER_NETWORK = "--mesosTaskDockerNetwork";
+    public static final String MESOS_TASK_NETWORK_NAME = "--mesosTaskNetworkInfoName";
 
     // **** ZOOKEEPER
     private final ZookeeperCLIParameter zookeeperCLI = new ZookeeperCLIParameter();
@@ -128,6 +129,8 @@ public class Configuration {
     private Boolean mesosOfferIgnorePorts = false;
     @Parameter(names = {MESOS_TASK_DOCKER_NETWORK}, arity = 1, description = "Set the docker network type for the ES executor docker container. Types are 'HOST', 'BRIDGE', 'USER', and 'NONE'. Default is 'HOST'" )
     private String mesosTaskDockerNetwork = "host";
+    @Parameter(names = {MESOS_TASK_NETWORK_NAME}, arity = 1, description = "Set the name in 'network_infos' of the mesos task. Default is to leave network_infos empty." )
+    private String mesosTaskNetworkName = "";
 
 
     // ****************** Runtime configuration **********************
@@ -389,5 +392,12 @@ public class Configuration {
             default:
                 return Protos.ContainerInfo.DockerInfo.Network.HOST;
         }
+    }
+
+    public Optional<Protos.NetworkInfo> getNetworkInfo() {
+        if (mesosTaskNetworkName == null || mesosTaskNetworkName.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(Protos.NetworkInfo.newBuilder().setName(mesosTaskNetworkName).build());
     }
 }

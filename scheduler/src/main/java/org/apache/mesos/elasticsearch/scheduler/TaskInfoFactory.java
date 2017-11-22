@@ -225,6 +225,11 @@ public class TaskInfoFactory {
 
         builder.setDocker(dockerInfo);
 
+        Optional<Protos.NetworkInfo> networkInfoOptional = configuration.getNetworkInfo();
+        if (networkInfoOptional.isPresent()) {
+            builder.addNetworkInfos(networkInfoOptional.get());
+        }
+
         if (!configuration.getElasticsearchSettingsLocation().isEmpty()) {
             final Path path = Paths.get(configuration.getElasticsearchSettingsLocation());
             final Path fileName = path.getFileName();

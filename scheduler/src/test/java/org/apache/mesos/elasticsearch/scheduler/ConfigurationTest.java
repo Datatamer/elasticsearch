@@ -136,4 +136,23 @@ public class ConfigurationTest {
         assertEquals(configuration.getTaskDockerNetworkProtos(), Protos.ContainerInfo.DockerInfo.Network.HOST);
     }
 
+    @Test
+    public void shouldNotSetMesosNetworkInfo() throws UnknownHostException {
+        Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa", Configuration.MESOS_TASK_NETWORK_NAME, "");
+        assertFalse(configuration.getNetworkInfo().isPresent());
+    }
+
+    @Test
+    public void shouldNotSetMesosNetworkInfoDefault() throws UnknownHostException {
+        Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa");
+        assertFalse(configuration.getNetworkInfo().isPresent());
+    }
+
+    @Test
+    public void shouldSetMesosNetworkInfo() throws UnknownHostException {
+        Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa", Configuration.MESOS_TASK_NETWORK_NAME, "i'm a name!");
+        assertTrue(configuration.getNetworkInfo().isPresent());
+        assertEquals("i'm a name!", configuration.getNetworkInfo().get().getName());
+    }
+
 }
