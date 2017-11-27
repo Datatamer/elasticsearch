@@ -11,32 +11,21 @@ import static java.util.Arrays.asList;
  */
 public class OfferStrategyExternalStorage extends OfferStrategy {
 
-    public OfferStrategyExternalStorage(Configuration configuration, ClusterState clusterState) {
+    public OfferStrategyExternalStorage(final Configuration configuration, ClusterState clusterState) {
         super(configuration, clusterState);
+        // Offer rule lambda returns false, it accepts the offer.
+        // Offer rule lambda returns true, it declines the offer.
+        acceptanceRules = asList(
+          new OfferRule("Host already running task", this::isHostAlreadyRunningTask),
+          new OfferRule("Hostname is unresolveable", offer -> !isHostnameResolveable(offer.getHostname())),
+          new OfferRule("First ES node is not responding", offer -> !(isAtLeastOneESNodeRunning() || !configuration.getMesosOfferWaitForRunning())),
+          new OfferRule("Cluster size already fulfilled", offer -> clusterState.getTaskList().size() >= configuration.getElasticsearchNodes()),
+          new OfferRule("Offer did not have 2 ports", offer -> !containsTwoPorts(offer.getResourcesList())),
+          new OfferRule("The offer does not contain the user specified ports", offer -> !(containsUserSpecifiedPorts(offer.getResourcesList()) || configuration.getMesosOfferIgnorePorts())),
+          new OfferRule("Offer did not have enough CPU resources", offer -> !isEnoughCPU(configuration, offer.getResourcesList())),
+          new OfferRule("Offer did not have enough RAM resources", offer -> !isEnoughRAM(configuration, offer.getResourcesList()))
+        );
 
-        if (!configuration.getMesosOfferIgnorePorts()) {
-            acceptanceRules = asList(
-              new OfferRule("Host already running task", this::isHostAlreadyRunningTask),
-              new OfferRule("Hostname is unresolveable", offer -> !isHostnameResolveable(offer.getHostname())),
-              new OfferRule("First ES node is not responding", offer -> !isAtLeastOneESNodeRunning()),
-              new OfferRule("Cluster size already fulfilled", offer -> clusterState.getTaskList().size() >= configuration.getElasticsearchNodes()),
-              new OfferRule("Offer did not have 2 ports", offer -> !containsTwoPorts(offer.getResourcesList())),
-              new OfferRule("The offer does not contain the user specified ports", offer -> !containsUserSpecifiedPorts(offer.getResourcesList())),
-              new OfferRule("Offer did not have enough CPU resources", offer -> !isEnoughCPU(configuration, offer.getResourcesList())),
-              new OfferRule("Offer did not have enough RAM resources", offer -> !isEnoughRAM(configuration, offer.getResourcesList()))
-            );
-        }
-        else {
-            acceptanceRules = asList(
-              new OfferRule("Host already running task", this::isHostAlreadyRunningTask),
-              new OfferRule("Hostname is unresolveable", offer -> !isHostnameResolveable(offer.getHostname())),
-              new OfferRule("First ES node is not responding", offer -> !isAtLeastOneESNodeRunning()),
-              new OfferRule("Cluster size already fulfilled", offer -> clusterState.getTaskList().size() >= configuration.getElasticsearchNodes()),
-              new OfferRule("The offer does not contain the user specified ports", offer -> !containsUserSpecifiedPorts(offer.getResourcesList())),
-              new OfferRule("Offer did not have enough CPU resources", offer -> !isEnoughCPU(configuration, offer.getResourcesList())),
-              new OfferRule("Offer did not have enough RAM resources", offer -> !isEnoughRAM(configuration, offer.getResourcesList()))
-            );
-        }
     }
 
 }

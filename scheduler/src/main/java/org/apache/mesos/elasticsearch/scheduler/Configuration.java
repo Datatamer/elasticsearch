@@ -70,6 +70,7 @@ public class Configuration {
     public static final String MESOS_OFFER_IGNORE_PORTS = "--mesosOfferIgnorePorts";
     public static final String MESOS_TASK_DOCKER_NETWORK = "--mesosTaskDockerNetwork";
     public static final String MESOS_TASK_NETWORK_NAME = "--mesosTaskNetworkInfoName";
+    public static final String MESOS_OFFER_WAIT_FOR_RUNNING = "--mesosOfferWaitForRunning";
 
     // **** ZOOKEEPER
     private final ZookeeperCLIParameter zookeeperCLI = new ZookeeperCLIParameter();
@@ -131,6 +132,8 @@ public class Configuration {
     private String mesosTaskDockerNetwork = "host";
     @Parameter(names = {MESOS_TASK_NETWORK_NAME}, arity = 1, description = "Set the name in 'network_infos' of the mesos task. Default is to leave network_infos empty." )
     private String mesosTaskNetworkName = "";
+    @Parameter(names = {MESOS_OFFER_WAIT_FOR_RUNNING}, arity = 1, description = "If true, will wait on creating more elasticsearch executors until the first one is running. Default is true.")
+    private Boolean mesosOfferWaitForRunning = true;
 
 
     // ****************** Runtime configuration **********************
@@ -224,6 +227,11 @@ public class Configuration {
     public Boolean getMesosOfferIgnorePorts() {
         return mesosOfferIgnorePorts;
     }
+
+    public Boolean getMesosOfferWaitForRunning() {
+        return mesosOfferWaitForRunning;
+    }
+
 
     public String getElasticsearchBinary() {
         return executorBinary;
