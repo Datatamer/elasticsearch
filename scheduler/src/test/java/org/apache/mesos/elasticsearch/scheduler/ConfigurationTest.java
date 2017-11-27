@@ -155,4 +155,40 @@ public class ConfigurationTest {
         assertEquals("i'm a name!", configuration.getNetworkInfo().get().getName());
     }
 
+    @Test
+    public void shouldSetWaitForRunningTrue() throws UnknownHostException {
+        Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa", Configuration.MESOS_OFFER_WAIT_FOR_RUNNING, "true");
+        assertTrue(configuration.getMesosOfferWaitForRunning());
+    }
+
+    @Test
+    public void shouldSetWaitForRunningFalse() throws UnknownHostException {
+        Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa", Configuration.MESOS_OFFER_WAIT_FOR_RUNNING, "false");
+        assertFalse(configuration.getMesosOfferWaitForRunning());
+    }
+
+    @Test
+    public void shouldSetWaitForRunningDefaultTrue() throws UnknownHostException {
+        Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa");
+        assertTrue(configuration.getMesosOfferWaitForRunning());
+    }
+
+    @Test
+    public void shouldSetMultipleTasksTrue() throws UnknownHostException {
+        Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa", Configuration.MESOS_MULTIPLE_TASKS_PER_HOST, "true");
+        assertTrue(configuration.getMesosMultipleTasksPerHost());
+    }
+
+    @Test
+    public void shouldSetMultipleTasksFalse() throws UnknownHostException {
+        Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa", Configuration.MESOS_MULTIPLE_TASKS_PER_HOST, "false");
+        assertFalse(configuration.getMesosMultipleTasksPerHost());
+    }
+
+    @Test
+    public void shouldSetMultipleTasksDefaultFalse() throws UnknownHostException {
+        Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa");
+        assertFalse(configuration.getMesosMultipleTasksPerHost());
+    }
+
 }
