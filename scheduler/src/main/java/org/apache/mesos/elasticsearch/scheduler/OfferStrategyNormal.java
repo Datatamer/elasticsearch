@@ -17,7 +17,7 @@ public class OfferStrategyNormal extends OfferStrategy {
         // Offer rule lambda returns false, it accepts the offer.
         // Offer rule lambda returns true, it declines the offer.
         acceptanceRules = asList(
-          new OfferRule("Host already running task", this::isHostAlreadyRunningTask),
+          new OfferRule("Host already running task", offer -> !configuration.getMesosMultipleTasksPerHost() && isHostAlreadyRunningTask(offer)),
           new OfferRule("Hostname is unresolveable", offer -> !isHostnameResolveable(offer.getHostname())),
           new OfferRule("First ES node is not responding", offer -> !(isAtLeastOneESNodeRunning() || !configuration.getMesosOfferWaitForRunning())),
           new OfferRule("Cluster size already fulfilled", offer -> clusterState.getTaskList().size() >= configuration.getElasticsearchNodes()),

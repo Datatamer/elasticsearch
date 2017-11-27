@@ -71,6 +71,7 @@ public class Configuration {
     public static final String MESOS_TASK_DOCKER_NETWORK = "--mesosTaskDockerNetwork";
     public static final String MESOS_TASK_NETWORK_NAME = "--mesosTaskNetworkInfoName";
     public static final String MESOS_OFFER_WAIT_FOR_RUNNING = "--mesosOfferWaitForRunning";
+    public static final String MESOS_MULTIPLE_TASKS_PER_HOST = "--mesosMultipleTasksPerHost";
 
     // **** ZOOKEEPER
     private final ZookeeperCLIParameter zookeeperCLI = new ZookeeperCLIParameter();
@@ -128,12 +129,14 @@ public class Configuration {
     // **** Custom Tamr Config
     @Parameter(names = {MESOS_OFFER_IGNORE_PORTS}, arity = 1, description = "If true, the framework will ignore available  ports when considering an offer from mesos.")
     private Boolean mesosOfferIgnorePorts = false;
-    @Parameter(names = {MESOS_TASK_DOCKER_NETWORK}, arity = 1, description = "Set the docker network type for the ES executor docker container. Types are 'HOST', 'BRIDGE', 'USER', and 'NONE'. Default is 'HOST'" )
+    @Parameter(names = {MESOS_TASK_DOCKER_NETWORK}, arity = 1, description = "Set the docker network type for the ES executor docker container. Types are 'HOST', 'BRIDGE', 'USER', and 'NONE'. Default is 'HOST'")
     private String mesosTaskDockerNetwork = "host";
-    @Parameter(names = {MESOS_TASK_NETWORK_NAME}, arity = 1, description = "Set the name in 'network_infos' of the mesos task. Default is to leave network_infos empty." )
+    @Parameter(names = {MESOS_TASK_NETWORK_NAME}, arity = 1, description = "Set the name in 'network_infos' of the mesos task. Default is to leave network_infos empty.")
     private String mesosTaskNetworkName = "";
     @Parameter(names = {MESOS_OFFER_WAIT_FOR_RUNNING}, arity = 1, description = "If true, will wait on creating more elasticsearch executors until the first one is running. Default is true.")
     private Boolean mesosOfferWaitForRunning = true;
+    @Parameter(names = {MESOS_MULTIPLE_TASKS_PER_HOST}, arity = 1, description = "If true, allows multiple tasks (executors) to be run on a single host. Default is false.")
+    private Boolean mesosMultipleTasksPerHost = false;
 
 
     // ****************** Runtime configuration **********************
@@ -232,6 +235,9 @@ public class Configuration {
         return mesosOfferWaitForRunning;
     }
 
+    public Boolean getMesosMultipleTasksPerHost() {
+        return mesosMultipleTasksPerHost;
+    }
 
     public String getElasticsearchBinary() {
         return executorBinary;
