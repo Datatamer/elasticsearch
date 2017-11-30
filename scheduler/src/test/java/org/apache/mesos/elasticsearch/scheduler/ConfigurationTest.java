@@ -64,14 +64,31 @@ public class ConfigurationTest {
         final ClusterState clusterState = Mockito.mock(ClusterState.class);
         final int port = 1234;
         final Protos.DiscoveryInfo discoveryInfo = Protos.DiscoveryInfo.newBuilder().setPorts(Protos.Ports.newBuilder()
-                .addPorts(Protos.Port.newBuilder().setNumber(port))
-                .addPorts(Protos.Port.newBuilder().setNumber(port)))
-                .setVisibility(Protos.DiscoveryInfo.Visibility.EXTERNAL)
-                .build();
+          .addPorts(Protos.Port.newBuilder().setNumber(port))
+          .addPorts(Protos.Port.newBuilder().setNumber(port)))
+          .setVisibility(Protos.DiscoveryInfo.Visibility.EXTERNAL)
+          .build();
         Protos.SlaveID slaveID = Protos.SlaveID.newBuilder().setValue("SLAVE").build();
         final List<String> arguments = configuration.esArguments(clusterState, discoveryInfo, slaveID);
         String allArgs = arguments.toString();
         assertTrue(allArgs.contains(Integer.toString(port)));
+    }
+
+    @Test
+    public void shouldCreateArgumentsWithHostname() {
+        final String discoveryHostname = "ahostnameidefined";
+        Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa", Configuration.DISCOVERY_ZEN_PING_UNICAST_HOSTS, discoveryHostname);
+        final ClusterState clusterState = Mockito.mock(ClusterState.class);
+        final int port = 1234;
+        final Protos.DiscoveryInfo discoveryInfo = Protos.DiscoveryInfo.newBuilder().setPorts(Protos.Ports.newBuilder()
+          .addPorts(Protos.Port.newBuilder().setNumber(port))
+          .addPorts(Protos.Port.newBuilder().setNumber(port)))
+          .setVisibility(Protos.DiscoveryInfo.Visibility.EXTERNAL)
+          .build();
+        Protos.SlaveID slaveID = Protos.SlaveID.newBuilder().setValue("SLAVE").build();
+        final List<String> arguments = configuration.esArguments(clusterState, discoveryInfo, slaveID);
+        String allArgs = arguments.toString();
+        assertTrue(allArgs.contains(discoveryHostname));
     }
 
     @Test

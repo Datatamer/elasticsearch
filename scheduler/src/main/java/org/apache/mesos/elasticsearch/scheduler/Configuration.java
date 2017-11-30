@@ -72,7 +72,7 @@ public class Configuration {
     public static final String MESOS_TASK_NETWORK_NAME = "--mesosTaskNetworkInfoName";
     public static final String MESOS_OFFER_WAIT_FOR_RUNNING = "--mesosOfferWaitForRunning";
     public static final String MESOS_MULTIPLE_TASKS_PER_HOST = "--mesosMultipleTasksPerHost";
-
+    public static final String DISCOVERY_ZEN_PING_UNICAST_HOSTS = "--discoveryZenPingUnicastHosts";
     // **** ZOOKEEPER
     private final ZookeeperCLIParameter zookeeperCLI = new ZookeeperCLIParameter();
     private final ElasticsearchCLIParameter elasticsearchCLI = new ElasticsearchCLIParameter();
@@ -137,6 +137,8 @@ public class Configuration {
     private Boolean mesosOfferWaitForRunning = true;
     @Parameter(names = {MESOS_MULTIPLE_TASKS_PER_HOST}, arity = 1, description = "If true, allows multiple tasks (executors) to be run on a single host. Default is false.")
     private Boolean mesosMultipleTasksPerHost = false;
+    @Parameter(names = {DISCOVERY_ZEN_PING_UNICAST_HOSTS}, arity = 1, description = "A comma separated list of hosts to do the zen unicast discovery.")
+    private String discoveryZenPingUnicastHosts = "";
 
 
     // ****************** Runtime configuration **********************
@@ -339,7 +341,10 @@ public class Configuration {
         List<String> args = new ArrayList<>();
         List<Protos.TaskInfo> taskList = clusterState.getTaskList();
         String hostAddress = "";
-        if (taskList.size() > 0) {
+        if (discoveryZenPingUnicastHosts != null && !discoveryZenPingUnicastHosts.isEmpty()) {
+          hostAddress = discoveryZenPingUnicastHosts;
+        }
+        else if (taskList.size() > 0) {
             Protos.TaskInfo taskInfo = taskList.get(0);
             String taskId = taskInfo.getTaskId().getValue();
             InetSocketAddress transportAddress = clusterState.getGuiTaskList().get(taskId).getTransportAddress();
