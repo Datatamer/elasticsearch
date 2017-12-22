@@ -142,9 +142,6 @@ public class ConfigurationTest {
     public void shouldSetMesosDockerNetworkDefault() throws UnknownHostException {
         Configuration configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa");
         assertEquals(configuration.getTaskDockerNetworkProtos(), Protos.ContainerInfo.DockerInfo.Network.HOST);
-
-        configuration = new Configuration(ZookeeperCLIParameter.ZOOKEEPER_MESOS_URL, "aa", Configuration.MESOS_TASK_DOCKER_NETWORK, "notreal");
-        assertEquals(configuration.getTaskDockerNetworkProtos(), Protos.ContainerInfo.DockerInfo.Network.HOST);
     }
 
     @Test

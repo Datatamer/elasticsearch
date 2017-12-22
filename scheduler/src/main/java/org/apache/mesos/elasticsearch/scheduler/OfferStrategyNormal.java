@@ -19,7 +19,7 @@ public class OfferStrategyNormal extends OfferStrategy {
         acceptanceRules = asList(
           new OfferRule("Host already running task", offer -> !configuration.getMesosMultipleTasksPerHost() && isHostAlreadyRunningTask(offer)),
           new OfferRule("Hostname is unresolveable", offer -> !isHostnameResolveable(offer.getHostname())),
-          new OfferRule("First ES node is not responding", offer -> !(isAtLeastOneESNodeRunning() || !configuration.getMesosOfferWaitForRunning())),
+          new OfferRule("First ES node is not responding", offer -> !isAtLeastOneESNodeRunning() && configuration.getMesosOfferWaitForRunning()),
           new OfferRule("Cluster size already fulfilled", offer -> clusterState.getTaskList().size() >= configuration.getElasticsearchNodes()),
           new OfferRule("Offer did not have 2 ports", offer -> !containsTwoPorts(offer.getResourcesList())),
           new OfferRule("The offer does not contain the user specified ports", offer -> !(containsUserSpecifiedPorts(offer.getResourcesList()) || configuration.getMesosOfferIgnorePorts())),
