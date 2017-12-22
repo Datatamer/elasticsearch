@@ -100,11 +100,11 @@ public class TaskInfoFactory {
         final List<String> args = configuration.esArguments(clusterState, discovery, offer.getSlaveId());
         Protos.ContainerInfo containerInfo = getContainer(configuration, taskId, elasticSearchNodeId, offer.getSlaveId());
 
-        final String TAMR_ES_EXTRA_DOCKER_PARAMS = System.getenv("TAMR_ES_EXTRA_DOCKER_PARAMS");
-        if (TAMR_ES_EXTRA_DOCKER_PARAMS != null && TAMR_ES_EXTRA_DOCKER_PARAMS.length() > 1) {
-            final String delimiter = TAMR_ES_EXTRA_DOCKER_PARAMS.substring(0, 1);
+        final String tamrEsExtraDockerParams = System.getenv("TAMR_ES_EXTRA_DOCKER_PARAMS");
+        if (tamrEsExtraDockerParams != null && tamrEsExtraDockerParams.length() > 1) {
+            final String delimiter = tamrEsExtraDockerParams.substring(0, 1);
             String key = null;
-            for (final String s : TAMR_ES_EXTRA_DOCKER_PARAMS.substring(1).split(delimiter)) {
+            for (final String s : tamrEsExtraDockerParams.substring(1).split(delimiter)) {
                 if (key == null) {
                     key = s;
                     continue;

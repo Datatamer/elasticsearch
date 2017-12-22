@@ -343,8 +343,7 @@ public class Configuration {
         String hostAddress = "";
         if (discoveryZenPingUnicastHosts != null && !discoveryZenPingUnicastHosts.isEmpty()) {
           hostAddress = discoveryZenPingUnicastHosts;
-        }
-        else if (taskList.size() > 0) {
+        } else if (taskList.size() > 0) {
             Protos.TaskInfo taskInfo = taskList.get(0);
             String taskId = taskInfo.getTaskId().getValue();
             InetSocketAddress transportAddress = clusterState.getGuiTaskList().get(taskId).getTransportAddress();
