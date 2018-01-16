@@ -24,7 +24,7 @@ ext {
     jsonVersion = "20160212"
     junitVersion = "4.12"
     log4jVersion = "1.2.17"
-    mesosVer = "0.25.0"
+    mesosVer = "1.1.0"
     minimesosVersion = "0.7.1"
     springBootVersion = "1.2.5.RELEASE" // Bumping SB version causes Jackson incompatabilities with Docker-Java
     unirestVersion = "1.4.8"

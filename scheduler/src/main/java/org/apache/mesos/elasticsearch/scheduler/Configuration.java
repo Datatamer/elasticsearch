@@ -66,7 +66,13 @@ public class Configuration {
     // **** External Volumes
     public static final String EXTERNAL_VOLUME_DRIVER = "--externalVolumeDriver";
     public static final String EXTERNAL_VOLUME_OPTIONS = "--externalVolumeOptions";
-
+    // **** Custom Tamr Config
+    public static final String MESOS_OFFER_IGNORE_PORTS = "--mesosOfferIgnorePorts";
+    public static final String MESOS_TASK_DOCKER_NETWORK = "--mesosTaskDockerNetwork";
+    public static final String MESOS_TASK_NETWORK_NAME = "--mesosTaskNetworkInfoName";
+    public static final String MESOS_OFFER_WAIT_FOR_RUNNING = "--mesosOfferWaitForRunning";
+    public static final String MESOS_MULTIPLE_TASKS_PER_HOST = "--mesosMultipleTasksPerHost";
+    public static final String DISCOVERY_ZEN_PING_UNICAST_HOSTS = "--discoveryZenPingUnicastHosts";
     // **** ZOOKEEPER
     private final ZookeeperCLIParameter zookeeperCLI = new ZookeeperCLIParameter();
     private final ElasticsearchCLIParameter elasticsearchCLI = new ElasticsearchCLIParameter();
@@ -119,6 +125,21 @@ public class Configuration {
     private String externalVolumeDriver = "";
     @Parameter(names = {EXTERNAL_VOLUME_OPTIONS}, description = "External volume driver options.")
     private String externalVolumeOption = "";
+
+    // **** Custom Tamr Config
+    @Parameter(names = {MESOS_OFFER_IGNORE_PORTS}, arity = 1, description = "If true, the framework will ignore available  ports when considering an offer from mesos.")
+    private Boolean mesosOfferIgnorePorts = false;
+    @Parameter(names = {MESOS_TASK_DOCKER_NETWORK}, arity = 1, description = "Set the docker network type for the ES executor docker container. Types are 'HOST', 'BRIDGE', 'USER', and 'NONE'. Default is 'HOST'")
+    private String mesosTaskDockerNetwork = "host";
+    @Parameter(names = {MESOS_TASK_NETWORK_NAME}, arity = 1, description = "Set the name in 'network_infos' of the mesos task. Default is to leave network_infos empty.")
+    private String mesosTaskNetworkName = "";
+    @Parameter(names = {MESOS_OFFER_WAIT_FOR_RUNNING}, arity = 1, description = "If true, will wait on creating more elasticsearch executors until the first one is running. Default is true.")
+    private Boolean mesosOfferWaitForRunning = true;
+    @Parameter(names = {MESOS_MULTIPLE_TASKS_PER_HOST}, arity = 1, description = "If true, allows multiple tasks (executors) to be run on a single host. Default is false.")
+    private Boolean mesosMultipleTasksPerHost = false;
+    @Parameter(names = {DISCOVERY_ZEN_PING_UNICAST_HOSTS}, arity = 1, description = "A comma separated list of hosts to do the zen unicast discovery.")
+    private String discoveryZenPingUnicastHosts = "";
+
 
     // ****************** Runtime configuration **********************
     public Configuration(String... args) {
@@ -206,6 +227,18 @@ public class Configuration {
 
     public Boolean getIsUseIpAddress() {
         return isUseIpAddress;
+    }
+
+    public Boolean getMesosOfferIgnorePorts() {
+        return mesosOfferIgnorePorts;
+    }
+
+    public Boolean getMesosOfferWaitForRunning() {
+        return mesosOfferWaitForRunning;
+    }
+
+    public Boolean getMesosMultipleTasksPerHost() {
+        return mesosMultipleTasksPerHost;
     }
 
     public String getElasticsearchBinary() {
@@ -308,7 +341,9 @@ public class Configuration {
         List<String> args = new ArrayList<>();
         List<Protos.TaskInfo> taskList = clusterState.getTaskList();
         String hostAddress = "";
-        if (taskList.size() > 0) {
+        if (discoveryZenPingUnicastHosts != null && !discoveryZenPingUnicastHosts.isEmpty()) {
+          hostAddress = discoveryZenPingUnicastHosts;
+        } else if (taskList.size() > 0) {
             Protos.TaskInfo taskInfo = taskList.get(0);
             String taskId = taskInfo.getTaskId().getValue();
             InetSocketAddress transportAddress = clusterState.getGuiTaskList().get(taskId).getTransportAddress();
@@ -360,5 +395,27 @@ public class Configuration {
 
     public String dataVolumeName(Long nodeId) {
         return getFrameworkName() + nodeId + "data";
+    }
+
+    public Protos.ContainerInfo.DockerInfo.Network getTaskDockerNetworkProtos() {
+        switch (mesosTaskDockerNetwork.toLowerCase()) {
+            case "host":
+                return Protos.ContainerInfo.DockerInfo.Network.HOST;
+            case "bridge":
+                return Protos.ContainerInfo.DockerInfo.Network.BRIDGE;
+            case "user":
+                return Protos.ContainerInfo.DockerInfo.Network.USER;
+            case "none":
+                return Protos.ContainerInfo.DockerInfo.Network.NONE;
+            default:
+                return Protos.ContainerInfo.DockerInfo.Network.HOST;
+        }
+    }
+
+    public Optional<Protos.NetworkInfo> getNetworkInfo() {
+        if (mesosTaskNetworkName == null || mesosTaskNetworkName.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(Protos.NetworkInfo.newBuilder().setName(mesosTaskNetworkName).build());
     }
 }

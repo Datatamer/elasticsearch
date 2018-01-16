@@ -100,11 +100,11 @@ public class TaskInfoFactory {
         final List<String> args = configuration.esArguments(clusterState, discovery, offer.getSlaveId());
         Protos.ContainerInfo containerInfo = getContainer(configuration, taskId, elasticSearchNodeId, offer.getSlaveId());
 
-        final String TAMR_ES_EXTRA_DOCKER_PARAMS = System.getenv("TAMR_ES_EXTRA_DOCKER_PARAMS");
-        if (TAMR_ES_EXTRA_DOCKER_PARAMS != null && TAMR_ES_EXTRA_DOCKER_PARAMS.length() > 1) {
-            final String delimiter = TAMR_ES_EXTRA_DOCKER_PARAMS.substring(0, 1);
+        final String tamrEsExtraDockerParams = System.getenv("TAMR_ES_EXTRA_DOCKER_PARAMS");
+        if (tamrEsExtraDockerParams != null && tamrEsExtraDockerParams.length() > 1) {
+            final String delimiter = tamrEsExtraDockerParams.substring(0, 1);
             String key = null;
-            for (final String s : TAMR_ES_EXTRA_DOCKER_PARAMS.substring(1).split(delimiter)) {
+            for (final String s : tamrEsExtraDockerParams.substring(1).split(delimiter)) {
                 if (key == null) {
                     key = s;
                     continue;
@@ -149,8 +149,7 @@ public class TaskInfoFactory {
         if (elasticsearchPorts.isEmpty() || elasticsearchPorts.stream().allMatch(port -> port == 0)) {
             //No ports requested by user or two random ports requested
             ports = Resources.selectTwoPortsFromRange(offer.getResourcesList());
-        }
-        else {
+        } else {
             //Replace a user requested port 0 with a random port
             ports = elasticsearchPorts.stream().map(port -> port != 0 ?  port : Resources.selectOnePortFromRange(offer.getResourcesList())).collect(Collectors.toList());
         }
@@ -159,8 +158,10 @@ public class TaskInfoFactory {
 
     private List<Protos.Resource> getResources(Configuration configuration, List<Integer> ports) {
         List<Protos.Resource> acceptedResources = Resources.buildFrameworkResources(configuration);
-        acceptedResources.add(Resources.singlePortRange(ports.get(0), configuration.getFrameworkRole()));
-        acceptedResources.add(Resources.singlePortRange(ports.get(1), configuration.getFrameworkRole()));
+        if (!configuration.getMesosOfferIgnorePorts()) {
+            acceptedResources.add(Resources.singlePortRange(ports.get(0), configuration.getFrameworkRole()));
+            acceptedResources.add(Resources.singlePortRange(ports.get(1), configuration.getFrameworkRole()));
+        }
         return acceptedResources;
     }
 
@@ -181,7 +182,7 @@ public class TaskInfoFactory {
                 .addParameters(Protos.Parameter.newBuilder().setKey("env").setValue("MESOS_TASK_ID=" + taskID.getValue()))
                 .setImage(configuration.getExecutorImage())
                 .setForcePullImage(configuration.getExecutorForcePullImage())
-                .setNetwork(Protos.ContainerInfo.DockerInfo.Network.HOST);
+                .setNetwork(configuration.getTaskDockerNetworkProtos());
         // Add all env vars to container
         for (Protos.Environment.Variable variable : environment.getVariablesList()) {
             dockerInfo.addParameters(Protos.Parameter.newBuilder().setKey("env").setValue(variable.getName() + "=" + variable.getValue()));
@@ -222,6 +223,11 @@ public class TaskInfoFactory {
         }
 
         builder.setDocker(dockerInfo);
+
+        Optional<Protos.NetworkInfo> networkInfoOptional = configuration.getNetworkInfo();
+        if (networkInfoOptional.isPresent()) {
+            builder.addNetworkInfos(networkInfoOptional.get());
+        }
 
         if (!configuration.getElasticsearchSettingsLocation().isEmpty()) {
             final Path path = Paths.get(configuration.getElasticsearchSettingsLocation());
