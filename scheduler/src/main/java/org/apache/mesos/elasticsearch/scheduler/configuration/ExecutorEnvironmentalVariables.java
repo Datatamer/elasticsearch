@@ -16,9 +16,9 @@ public class ExecutorEnvironmentalVariables {
     private static final String native_mesos_library_key = "MESOS_NATIVE_JAVA_LIBRARY";
     private static final String native_mesos_library_path = "/usr/lib/libmesos.so"; // libmesos.so is usually symlinked to the version.
     private static final String CONTAINER_PATH_SETTINGS = "/tmp/config";
-    
+
     public static final String JAVA_OPTS = "JAVA_OPTS";
-    public static final String ES_HEAP = "ES_HEAP_SIZE";
+    public static final String ES_JAVA_OPTS = "ES_JAVA_OPTS";
     public static final int EXTERNAL_VOLUME_NOT_CONFIGURED = -1;
     public static final String ELASTICSEARCH_NODE_ID = "ELASTICSEARCH_NODE_ID";
 
@@ -26,7 +26,7 @@ public class ExecutorEnvironmentalVariables {
     public static final String DVDI_VOLUME_DRIVER = "DVDI_VOLUME_DRIVER";
     public static final String DVDI_VOLUME_OPTS = "DVDI_VOLUME_OPTS";
     public static final String DVDI_VOLUME_CONTAINERPATH = "DVDI_VOLUME_CONTAINERPATH";
-    
+
     private final List<Protos.Environment.Variable> envList = new ArrayList<>();
 
     /**
@@ -63,7 +63,11 @@ public class ExecutorEnvironmentalVariables {
      * @param configuration
      */
     private void populateEnvMap(Configuration configuration) {
-        addToList(ES_HEAP, getHeapSpaceString(configuration));
+        final String esHeapSize = getHeapSpaceString(configuration);
+        final String esJavaOpts = String.format(
+          "-Xms%s -Xmx%s -Des.allow_insecure_settings=true", esHeapSize, esHeapSize
+        );
+        addToList(ES_JAVA_OPTS, esJavaOpts);
         if (configuration.isFrameworkUseDocker()) {
             addToList(native_mesos_library_key, native_mesos_library_path);
         }
