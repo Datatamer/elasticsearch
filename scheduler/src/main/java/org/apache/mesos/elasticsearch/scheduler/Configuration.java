@@ -349,36 +349,34 @@ public class Configuration {
             InetSocketAddress transportAddress = clusterState.getGuiTaskList().get(taskId).getTransportAddress();
             hostAddress = NetworkUtils.addressToString(transportAddress, getIsUseIpAddress()).replace("http://", "");
         }
-        addIfNotEmpty(args, "--default.discovery.zen.ping.unicast.hosts", hostAddress);
-        args.add("--default.http.port=" + discoveryInfo.getPorts().getPorts(Discovery.CLIENT_PORT_INDEX).getNumber());
-        args.add("--default.transport.tcp.port=" + discoveryInfo.getPorts().getPorts(Discovery.TRANSPORT_PORT_INDEX).getNumber());
-        args.add("--default.cluster.name=" + getElasticsearchClusterName());
-        args.add("--default.node.master=true");
-        args.add("--default.node.data=true");
-        args.add("--default.node.local=false");
-        args.add("--default.index.number_of_replicas=0");
-        args.add("--default.index.auto_expand_replicas=0-all");
+        if (!hostAddress.isEmpty()) {
+            args.add("-Ediscovery.zen.ping.unicast.hosts=" + hostAddress);
+        }
+        args.add("-Ehttp.port=" + discoveryInfo.getPorts().getPorts(Discovery.CLIENT_PORT_INDEX).getNumber());
+        args.add("-Etransport.tcp.port=" + discoveryInfo.getPorts().getPorts(Discovery.TRANSPORT_PORT_INDEX).getNumber());
+        args.add("-Ecluster.name=" + getElasticsearchClusterName());
+        args.add("-Enode.master=true");
+        args.add("-Enode.data=true");
+        args.add("-Enetwork.host=_site_");
         if (!isFrameworkUseDocker()) {
             String taskSpecificDataDir = taskSpecificHostDir(slaveID);
-            args.add("--path.home=" + HOST_PATH_HOME); // Cannot be overidden
-            args.add("--default.path.data=" + taskSpecificDataDir);
-            args.add("--path.conf=" + HOST_PATH_CONF); // Cannot be overidden
+            args.add("-Epath.home=" + HOST_PATH_HOME); // Cannot be overidden
+            args.add("-Epath.data=" + taskSpecificDataDir);
         } else {
-            args.add("--path.data=" + CONTAINER_PATH_DATA); // Cannot be overidden
+            args.add("-Epath.data=" + CONTAINER_PATH_DATA); // Cannot be overidden
         }
-        args.add("--default.bootstrap.mlockall=" +
+        args.add("-Ebootstrap.memory_lock=" +
           Optional.ofNullable(System.getenv("TAMR_ES_BOOTSTRAP_MLOCKALL")).orElse("false"));
-        args.add("--default.network.bind_host=0.0.0.0");
-        args.add("--default.network.publish_host=_non_loopback:ipv4_");
-        args.add("--default.gateway.recover_after_nodes=1");
-        args.add("--default.gateway.expected_nodes=1");
-        args.add("--default.indices.recovery.max_bytes_per_sec=100mb");
-        args.add("--default.discovery.type=zen");
-        args.add("--default.discovery.zen.fd.ping_timeout=30s");
-        args.add("--default.discovery.zen.fd.ping_interval=1s");
-        args.add("--default.discovery.zen.fd.ping_retries=30");
-        args.add("--default.discovery.zen.ping.multicast.enabled=false");
-        args.add("--default.discovery.zen.minimum_master_nodes=" + getElasticsearchNodes());
+        args.add("-Enetwork.bind_host=0.0.0.0");
+        args.add("-Enetwork.publish_host=_site:ipv4_");
+        args.add("-Egateway.recover_after_nodes=1");
+        args.add("-Egateway.expected_nodes=1");
+        args.add("-Eindices.recovery.max_bytes_per_sec=100mb");
+        args.add("-Ediscovery.type=zen");
+        args.add("-Ediscovery.zen.fd.ping_timeout=30s");
+        args.add("-Ediscovery.zen.fd.ping_interval=1s");
+        args.add("-Ediscovery.zen.fd.ping_retries=30");
+        args.add("-Ediscovery.zen.minimum_master_nodes=" + getElasticsearchNodes());
 
         return args;
     }

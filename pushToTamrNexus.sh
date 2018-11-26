@@ -17,20 +17,23 @@ function pushjar {
     find ~/.gradle -name '*.jar' | grep $(basename $1) | xargs -t -n 1 rm -rf
 }
 
-version_parts="[^0-9]*\([0-9]\)\.\([0-9]\)\.\([0-9]\).*"
-maven_version=$(bash -c "$(
-  mvn -v 2>&1 |
-  grep 'Apache Maven' |
-  sed -e "s,$version_parts,expr \1 \\\* 10000 \+ \2 \\\* 100 \+ \3,g"
-)")
+# this code doesn't work on Linux machines, so skip
+if [[ `uname` != 'Linux' ]]; then
+    version_parts="[^0-9]*\([0-9]\)\.\([0-9]\)\.\([0-9]\).*"
+    maven_version=$(bash -c "$(
+      mvn -v 2>&1 |
+      grep 'Apache Maven' |
+      sed -e "s,$version_parts,expr \1 \\\* 10000 \+ \2 \\\* 100 \+ \3,g"
+    )")
 
-if [ $maven_version -lt 30309 ]; then
-    echo 'Please upgrade Maven to version 3.3.9 or newer.'
-    exit 1
+    if [ $maven_version -lt 30309 ]; then
+        echo 'Please upgrade Maven to version 3.3.9 or newer.'
+        exit 1
+    fi
 fi
 
 basedir=$(cd $(dirname $0) && pwd)
-version=0.11
+version=0.12f
 $basedir/gradlew build :scheduler:copyJar -x test
 pushjar $basedir/scheduler/build/docker/mesos-elasticsearch-scheduler.jar \
         org.apache.mesos \
