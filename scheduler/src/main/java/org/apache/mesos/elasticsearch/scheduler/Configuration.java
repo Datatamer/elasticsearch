@@ -350,33 +350,33 @@ public class Configuration {
             hostAddress = NetworkUtils.addressToString(transportAddress, getIsUseIpAddress()).replace("http://", "");
         }
         if (!hostAddress.isEmpty()) {
-            args.add("-Ediscovery.zen.ping.unicast.hosts=" + hostAddress);
+            args.add(buildKeyValue("discovery.zen.ping.unicast.hosts", hostAddress));
         }
-        args.add("-Ehttp.port=" + discoveryInfo.getPorts().getPorts(Discovery.CLIENT_PORT_INDEX).getNumber());
-        args.add("-Etransport.tcp.port=" + discoveryInfo.getPorts().getPorts(Discovery.TRANSPORT_PORT_INDEX).getNumber());
-        args.add("-Ecluster.name=" + getElasticsearchClusterName());
-        args.add("-Enode.master=true");
-        args.add("-Enode.data=true");
-        args.add("-Enetwork.host=_site_");
+        args.add(buildKeyValue("http.port", discoveryInfo.getPorts().getPorts(Discovery.CLIENT_PORT_INDEX).getNumber()));
+        args.add(buildKeyValue("transport.tcp.port", discoveryInfo.getPorts().getPorts(Discovery.TRANSPORT_PORT_INDEX).getNumber()));
+        args.add(buildKeyValue("cluster.name", getElasticsearchClusterName()));
+        args.add(buildKeyValue("node.master", true));
+        args.add(buildKeyValue("node.data", true));
+        args.add(buildKeyValue("network.host", "_site_"));
         if (!isFrameworkUseDocker()) {
             String taskSpecificDataDir = taskSpecificHostDir(slaveID);
-            args.add("-Epath.home=" + HOST_PATH_HOME); // Cannot be overidden
-            args.add("-Epath.data=" + taskSpecificDataDir);
+            args.add(buildKeyValue("path.home", HOST_PATH_HOME)); // Cannot be overidden
+            args.add(buildKeyValue("path.data", taskSpecificDataDir));
         } else {
-            args.add("-Epath.data=" + CONTAINER_PATH_DATA); // Cannot be overidden
+            args.add(buildKeyValue("path.data", CONTAINER_PATH_DATA)); // Cannot be overidden
         }
-        args.add("-Ebootstrap.memory_lock=" +
-          Optional.ofNullable(System.getenv("TAMR_ES_BOOTSTRAP_MLOCKALL")).orElse("false"));
-        args.add("-Enetwork.bind_host=0.0.0.0");
-        args.add("-Enetwork.publish_host=_site:ipv4_");
-        args.add("-Egateway.recover_after_nodes=1");
-        args.add("-Egateway.expected_nodes=1");
-        args.add("-Eindices.recovery.max_bytes_per_sec=100mb");
-        args.add("-Ediscovery.type=zen");
-        args.add("-Ediscovery.zen.fd.ping_timeout=30s");
-        args.add("-Ediscovery.zen.fd.ping_interval=1s");
-        args.add("-Ediscovery.zen.fd.ping_retries=30");
-        args.add("-Ediscovery.zen.minimum_master_nodes=" + getElasticsearchNodes());
+        args.add(buildKeyValue("bootstrap.memory_lock",
+          Optional.ofNullable(System.getenv("TAMR_ES_BOOTSTRAP_MLOCKALL")).orElse("false")));
+        args.add(buildKeyValue("network.bind_host", new InetSocketAddress(0).getAddress()));
+        args.add(buildKeyValue("network.publish_host", "_site:ipv4_"));
+        args.add(buildKeyValue("gateway.recover_after_nodes", "1"));
+        args.add(buildKeyValue("gateway.expected_nodes", "1"));
+        args.add(buildKeyValue("indices.recovery.max_bytes_per_sec", "100mb"));
+        args.add(buildKeyValue("discovery.type", "zen"));
+        args.add(buildKeyValue("discovery.zen.fd.ping_timeout", "30s"));
+        args.add(buildKeyValue("discovery.zen.fd.ping_interval", "1s"));
+        args.add(buildKeyValue("discovery.zen.fd.ping_retries", "30"));
+        args.add(buildKeyValue("discovery.zen.minimum_master_nodes", getElasticsearchNodes()));
 
         return args;
     }
@@ -385,10 +385,8 @@ public class Configuration {
         return getDataDir() + "/" + getElasticsearchClusterName() + "/" + slaveID.getValue();
     }
 
-    private void addIfNotEmpty(List<String> args, String key, String value) {
-        if (!value.isEmpty()) {
-            args.addAll(asList(key, value));
-        }
+    private String buildKeyValue(final String key, final Object value) {
+        return String.format("-E%s=%s", key, value);
     }
 
     public String dataVolumeName(Long nodeId) {

@@ -33,7 +33,7 @@ if [[ `uname` != 'Linux' ]]; then
 fi
 
 basedir=$(cd $(dirname $0) && pwd)
-version=0.12f
+version=0.13
 $basedir/gradlew build :scheduler:copyJar -x test
 pushjar $basedir/scheduler/build/docker/mesos-elasticsearch-scheduler.jar \
         org.apache.mesos \
