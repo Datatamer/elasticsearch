@@ -367,7 +367,7 @@ public class Configuration {
         }
         args.add(buildKeyValue("bootstrap.memory_lock",
           Optional.ofNullable(System.getenv("TAMR_ES_BOOTSTRAP_MLOCKALL")).orElse("false")));
-        args.add(buildKeyValue("network.bind_host", new InetSocketAddress(0).getAddress()));
+        args.add(buildKeyValue("network.bind_host", "0.0.0.0")); //NOPMD
         args.add(buildKeyValue("network.publish_host", "_site:ipv4_"));
         args.add(buildKeyValue("gateway.recover_after_nodes", "1"));
         args.add(buildKeyValue("gateway.expected_nodes", "1"));
